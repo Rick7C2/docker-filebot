@@ -11,9 +11,16 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
 # Auto-accept Oracle JDK license
 RUN echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
 
-RUN add-apt-repository ppa:webupd8team/java \
-  && apt-get update \
-  && apt-get install -y oracle-java8-installer
+# Make sure system is up-to-date.
+RUN \
+  sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list && \
+  RUN add-apt-repository ppa:webupd8team/java \
+  apt-get update && \
+  apt-get -y upgrade && \
+  apt-get -y dist-upgrade && \
+  locale-gen en_US.UTF-8
+  
+  apt-get install -y unrar-free mediainfo p7zip-full oracle-java8-installer
 
 # Create dir to keep things tidy. Make sure it's readable by $USER_ID
 RUN mkdir /files
